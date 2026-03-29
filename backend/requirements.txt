@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic-settings
+python-dotenv
+sqlalchemy[asyncio]
+asyncpg
+langchain
+langchain-openai
+pgvector
+langgraph
+langfuse
