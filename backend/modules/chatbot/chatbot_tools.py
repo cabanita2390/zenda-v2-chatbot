@@ -19,6 +19,7 @@ from sqlalchemy import select
 
 from core.ai_config import EMBEDDING_MODEL, RAG_TOP_K
 from modules.products.products_model import Product
+from modules.orders.orders_model import Order
 from .chatbot_schema import CartAction
 
 logger = logging.getLogger(__name__)
@@ -104,4 +105,36 @@ async def resolve_product_ids(
 
     logger.info("[Cart] Resolved %d actions with quantities", len(actions))
     return actions
+
+async def track_order(order_id: str, db: AsyncSession) -> str:
+    """Busca un pedido por su ID (UUID) en la base de datos y retorna su estado formateado."""
+    logger.info("[Order Tracking] Buscando pedido: %s", order_id)
+    if not order_id:
+        return "No me proporcionaste un número de pedido."
+    
+    # Limpiamos si el LLM extrajo espacios
+    order_id = order_id.strip()
+
+    stmt = select(Order).where(Order.id == order_id)
+    result = await db.execute(stmt)
+    order = result.scalars().first()
+
+    if not order:
+        return f"No encontré ningún pedido con el número '{order_id}'. Por favor verifica que sea el correcto."
+    
+    # Traducción de estado
+    estados_humanos = {
+        "pendiente": "Pendiente de pago ⏳",
+        "pagado": "Pagado y en preparación 🍰",
+        "enviado": "En camino hacia ti 🚚",
+        "entregado": "Entregado ✅",
+        "cancelado": "Cancelado ❌",
+    }
+    estado_amigable = estados_humanos.get(order.status.value, order.status.value)
+
+    return (
+        f"¡Encontré tu pedido! (ID: {order.id})\n"
+        f"Actualmente su estado es: **{estado_amigable}**.\n"
+        f"El total fue de ${order.total_amount:,.0f}."
+    )
 

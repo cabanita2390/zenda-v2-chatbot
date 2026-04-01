@@ -28,7 +28,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import ai_config
 from .chatbot_state import GraphState
-from .chatbot_tools import retrieve_products, resolve_product_ids
+from .chatbot_tools import retrieve_products, resolve_product_ids, track_order
 from .chatbot_schema import CartAction
 
 logger = logging.getLogger(__name__)
@@ -223,6 +223,7 @@ def build_graph(db: AsyncSession) -> StateGraph:
             "- recipe: El usuario pregunta por ingredientes, cómo se hace algo o pide una receta.\n"
             "- purchase: El usuario quiere comprar, añadir al carrito, confirma una compra ('Sí', 'Dale') o da una cantidad ('2', 'tres').\n"
             "- info: Preguntas informativas sobre qué es un producto o qué postres hay.\n"
+            "- track_order: El usuario quiere saber el estado de su pedido, pregunta dónde está su pedido, o proporciona un código o ID de seguimiento.\n"
             "- greeting: Saludos, despedidas o charla casual.\n\n"
             "HISTORIAL RECIENTE (Para contexto):\n"
             f"{context_str}\n"
@@ -244,7 +245,7 @@ def build_graph(db: AsyncSession) -> StateGraph:
             logger.warning("[Triage] Failed to parse JSON intent, defaulting to 'info'")
             intent = "info"
 
-        if intent not in ("recipe", "purchase", "info", "greeting"):
+        if intent not in ("recipe", "purchase", "info", "greeting", "track_order"):
             logger.warning("[Triage] Unknown intent '%s', defaulting to 'info'", intent)
             intent = "info"
 
@@ -367,6 +368,44 @@ def build_graph(db: AsyncSession) -> StateGraph:
 
 
 
+    # ── NODE: track_order ────────────────────────────────────────────────────────────
+    async def track_order_node(state: GraphState) -> dict:
+        user_query = state["messages"][-1].content
+        logger.info("[TrackOrder] ▶ Processing tracking for: '%s'", user_query)
+
+        # 1. Extraer ID usando el LLM (por si el usuario lo mandó entre otras palabras)
+        extract_prompt = (
+            "Extrae el ID o código de pedido (usualmente un identificador largo de letras y números) de este mensaje.\n"
+            "Si no encuentras ningún ID, responde exactamente con la palabra 'NONE'.\n"
+            f"Mensaje: '{user_query}'"
+        )
+        extraction_resp = await info_llm.ainvoke([HumanMessage(content=extract_prompt)])
+        order_id = extraction_resp.content.strip()
+
+        if order_id == "NONE" or not order_id:
+            reply = "Para consultar el estado de tu pedido, por favor bríndame el identificador (ID) único de tu compra."
+            return {"reply": reply, "actions": [], "context": ""}
+
+        # 2. Consultar BD
+        db_reply = await track_order(order_id, db)
+        
+        # 3. Formatear amigablemente
+        system = (
+            "Eres el asistente de Zenda. Comunícale al usuario la información de rastreo de su pedido "
+            "de forma cálida y profesional. La información técnica es la siguiente:\n\n"
+            f"{db_reply}\n\n"
+            "REGLA CRÍTICA PARA PAGOS NEQUI/MANUALES:\n"
+            "Si la información dice que el estado es 'Pendiente de pago', PERO el usuario afirma que "
+            "ya pagó, envió un comprobante o transfirió, tú NO DEBES confirmar el pago. "
+            "Debes decirle muy amablemente algo como: '¡Muchas gracias por tu pago! Nuestro equipo "
+            "administrativo está verificando la transferencia en nuestro Nequi. Una vez sea confirmada, "
+            "el sistema actualizará tu pedido a Pagado automáticamente.'"
+        )
+        messages = [SystemMessage(content=system)] + _build_lc_history(state)
+        final_reply = await _stream_and_collect(info_llm, messages, label="track_order")
+        return {"reply": final_reply, "actions": [], "context": db_reply}
+
+
     # ── NODE: info ────────────────────────────────────────────────────────────
     async def info_node(state: GraphState) -> dict:
         search_query = await _get_search_query(state, info_llm)
@@ -424,6 +463,7 @@ def build_graph(db: AsyncSession) -> StateGraph:
     graph.add_node("purchase", purchase_node)   
     graph.add_node("info", info_node)
     graph.add_node("greeting", greeting_node)
+    graph.add_node("track_order", track_order_node)
 
     graph.add_edge(START, "triage")
     graph.add_conditional_edges(
@@ -434,11 +474,13 @@ def build_graph(db: AsyncSession) -> StateGraph:
             "purchase": "purchase",
             "info": "info",
             "greeting": "greeting",
+            "track_order": "track_order",
         },
     )
     graph.add_edge("recipe", END)
     graph.add_edge("purchase", END)
     graph.add_edge("info", END)
     graph.add_edge("greeting", END)
+    graph.add_edge("track_order", END)
 
     return graph.compile()

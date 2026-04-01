@@ -13,12 +13,16 @@ import { Button } from '@/components/ui/button'
 import { useCart } from '@/lib/cart-context'
 import { Separator } from '@/components/ui/separator'
 import { formatPrice } from '@/lib/utils'
+import { CheckoutDialog } from '@/components/checkout-dialog'
+import { useState } from 'react'
 
 export function CartDrawer() {
   const { isOpen, closeCart, items, updateQuantity, removeFromCart, subtotal } = useCart()
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
 
   return (
-    <Sheet open={isOpen} onOpenChange={closeCart}>
+    <>
+      <Sheet open={isOpen} onOpenChange={closeCart}>
       <SheetContent className="flex w-full flex-col bg-card sm:max-w-md">
         <SheetHeader className="border-b border-border pb-4">
           <SheetTitle className="text-lg font-medium tracking-tight">
@@ -113,6 +117,7 @@ export function CartDrawer() {
                 Envio e impuestos calculados en el checkout
               </p>
               <Button 
+                onClick={() => setIsCheckoutOpen(true)}
                 className="w-full bg-primary py-6 text-sm font-medium uppercase tracking-wider text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
               >
                 Proceder al Checkout
@@ -122,5 +127,7 @@ export function CartDrawer() {
         )}
       </SheetContent>
     </Sheet>
+    <CheckoutDialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen} />
+    </>
   )
 }

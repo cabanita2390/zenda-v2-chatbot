@@ -12,6 +12,8 @@ from contextlib import asynccontextmanager
 from core.database import engine, Base
 from modules.products.products_controller import router as products_router
 from modules.chatbot.chatbot_controller import router as chatbot_router
+from modules.orders.orders_controller import router as orders_router
+from modules.orders import orders_model # Import for Base.metadata inference
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,3 +46,4 @@ def health_check():
 # Registrar los controladores (Routers)
 app.include_router(products_router)
 app.include_router(chatbot_router)
+app.include_router(orders_router)
