@@ -29,12 +29,16 @@ class HealthyDessert(BaseModel):
 
 class CartAction(BaseModel):
     """
-    Structured action that the frontend must dispatch.
-    Currently only ADD_TO_CART is supported.
+    Acción estructurada que el frontend debe ejecutar.
+    Ahora incluye precio, imagen y cantidad para soporte total de pedidos.
     """
     type: Literal["ADD_TO_CART"]
     product_id: int
-    product_name: str   # Included for frontend toast/UX messages
+    product_name: str
+    price: float
+    image: Optional[str] = None
+    quantity: int = 1     # <--- Nuevo campo para cantidades
+
 
 
 # ── HTTP Contract ─────────────────────────────────────────────────────────────

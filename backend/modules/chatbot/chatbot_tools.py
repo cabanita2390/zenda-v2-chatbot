@@ -61,7 +61,8 @@ async def retrieve_products(query: str, db: AsyncSession) -> tuple[str, List[Pro
 
     lines = ["Catálogo recuperado (fuentes para tu respuesta):"]
     for p in products:
-        lines.append(f"  • [{p.id}] {p.name} — ${p.price:.2f} | {p.tag}")
+        price_str = f"{p.price:,.0f}".replace(",", ".")
+        lines.append(f"  • [{p.id}] {p.name} — ${price_str} | {p.tag}")
 
     context = "\n".join(lines)
     logger.debug("[RAG] Context built:\n%s", context)
@@ -69,25 +70,24 @@ async def retrieve_products(query: str, db: AsyncSession) -> tuple[str, List[Pro
 
 
 async def resolve_product_ids(
-    names: List[str], all_products: List[Product]
+    orders: List[dict], all_products: List[Product]
 ) -> List[CartAction]:
     """
-    Match product names (mentioned in user message) to their DB IDs.
-    Returns a list of CartAction ready to be sent to the frontend.
+    Cruza los nombres y cantidades extraídos por la IA con los productos reales 
+    de la DB para obtener sus IDs, precios e imágenes.
+    `orders` es una lista de: {"name": str, "quantity": int}
     """
     actions: List[CartAction] = []
     
-    for name in names:
-        req_name = name.lower().strip()
+    for order in orders:
+        req_name = order.get("name", "").lower().strip()
+        req_qty = order.get("quantity", 1)
         if not req_name:
             continue
             
         matched_product = None
-        # Try finding a product where the extracted name matches a portion of the real DB name
         for product in all_products:
             db_name = product.name.lower()
-            # If the user typed "Panna Cotta", it matches "Panna Cotta de Coco"
-            # If the LLM returned "Matcha", it matches "Cheesecake de Matcha"
             if req_name in db_name or db_name in req_name:
                 matched_product = product
                 break
@@ -97,7 +97,11 @@ async def resolve_product_ids(
                 type="ADD_TO_CART",
                 product_id=matched_product.id,
                 product_name=matched_product.name,
+                price=matched_product.price,
+                image=matched_product.image,
+                quantity=req_qty   # <--- Aplicamos la cantidad solicitada
             ))
 
-    logger.info("[Cart] Resolved %d actions from %d requested names", len(actions), len(names))
+    logger.info("[Cart] Resolved %d actions with quantities", len(actions))
     return actions
+

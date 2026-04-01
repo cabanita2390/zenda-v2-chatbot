@@ -8,7 +8,8 @@ export function ProductGrid() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/products/')
+    // fetch('http://localhost:8000/api/products/')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data)
@@ -36,7 +37,7 @@ export function ProductGrid() {
         </div>
         {loading ? (
           <div className="flex justify-center items-center py-12">
-            <span className="text-muted-foreground animate-pulse">Cargando productos desde el backend...</span>
+            <span className="text-muted-foreground animate-pulse">Cargando productos...</span>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

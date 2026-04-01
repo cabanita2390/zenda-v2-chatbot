@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Product, useCart } from '@/lib/cart-context'
+import { formatPrice } from '@/lib/utils'
 
 interface ProductCardProps {
   product: Product
@@ -37,9 +38,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </h3>
         <div className="flex items-center justify-between">
-          <span className="text-lg font-medium text-foreground">
-            ${product.price.toFixed(2)}
-          </span>
+            {formatPrice(product.price)}
           <Button
             size="icon"
             onClick={() => addToCart(product)}

@@ -25,43 +25,46 @@ logger = logging.getLogger(__name__)
 
 def _is_low_value_message(text: str) -> bool:
     import re
-    # Clean noise (punctuation) and whitespace
+    import unicodedata
+
+    # 1. NORMALIZACIÓN TOTAL (Quitar tildes, puntuación y pasar a minúsculas)
     t = text.lower().strip()
-    # Normalize by removing common punctuation (so "Sí," becomes "si")
+    # Quitar tildes (ej: 'sí' -> 'si')
+    t = "".join(c for c in unicodedata.normalize('NFD', t) if unicodedata.category(c) != 'Mn')
+    # Quitar puntuación
     t_clean = re.sub(r'[^\w\s]', '', t).strip()
 
-    # 1. GREETINGS: Always go to the graph so it can respond warmly.
-    greetings = {"hola", "buenas", "buen dia", "saludos", "hello", "hi", "hey"}
+    # NUEVA REGLA: Si es un número solo, NO es low-value (es una cantidad)
+    if t_clean.isdigit():
+        return False
+
+    # 2. GREETINGS Y CORTESÍA (Siempre van al grafo)
+    greetings = {"hola", "buenas", "buen dia", "saludos", "hello", "hi", "hey", "gracias", "chau", "adios", "bye"}
     if t_clean in greetings:
         return False    
 
-    # 2. TRIVIAL: These are truly low-value and can be handled statistically.
-    # We only block the EXACT trivial set.
+    # 3. TRIVIAL (Cosas que realmente no aportan nada)
+    # Quitamos 'gracias' y despedidas para que pasen al grafo y el bot sea amable.
     trivial_set = {
-        "gracias", "thanks", "gracias!", "chau", "adios", "bye",
-        "👍", "👌"
+        "aaa", "test", "asdf", "hola123"
     }
     if t_clean in trivial_set:
         return True
 
-    # 3. ACTION & DOMAIN KEYWORDS: These indicate intent and MUST go to the graph.
-    # Added common intents like 'si', 'no', 'agrega' (for 'Sí, agrégala')
+    # 4. PALABRAS DE VALOR (Añadimos variantes y confirmaciones)
     valuable_keywords = [
-        "si", "no", "agrega", "pon", "quiero", "compra", "suma",
-        "precio", "tiene", "ingredientes", "mousse", "torta", "postre", "info"
+        "si", "no", "agrega", "pon", "quiero", "compra", "suma", "dale", "vale",
+        "precio", "tiene", "ingredientes", "mousse", "torta", "postre", "info", "maracuya"
     ]
 
-    # If it contains ANY of these, it's NOT low-value
-    if any(k in t_clean for k in valuable_keywords):
+    # Si contiene CUALQUIER palabra de valor, NO es low-value
+    # Usamos búsqueda por palabra completa para ser más precisos
+    words = t_clean.split()
+    if any(k in words for k in valuable_keywords) or any(k in t_clean for k in valuable_keywords):
         return False
 
-    # 4. LENGTH RULE: Only block if the message is extremely short AND 
-    # hasn't matched any of our intent-bearing keywords above.
-    # Example: "ok", "listo", "dale" (not in greetings/valuable, and short)
-    if len(t_clean.split()) <= 2:
-        return True
-
     return False
+
 
 
 def _langfuse_handler() -> Optional[LangFuseCallbackHandler]:

@@ -33,16 +33,16 @@ DESCRIPTIONS = {
 }
 
 MOCK_PRODUCTS = [
-    {"name": "Parfait de Chia y Bayas", "price": 12.00, "tag": "Sin Azucar", "image": "/images/products/chia-parfait.jpg"},
-    {"name": "Tarta de Chocolate Negro", "price": 16.00, "tag": "Vegano", "image": "/images/products/dark-chocolate.jpg"},
-    {"name": "Cheesecake de Matcha", "price": 14.00, "tag": "Keto", "image": "/images/products/matcha-cheesecake.jpg"},
-    {"name": "Mousse de Avellana", "price": 13.00, "tag": "Sin Gluten", "image": "/images/products/hazelnut-mousse.jpg"},
-    {"name": "Brownie de Almendras", "price": 10.00, "tag": "Vegano", "image": "/images/products/almond-brownie.jpg"},
-    {"name": "Panna Cotta de Coco", "price": 11.00, "tag": "Sin Lactosa", "image": "/images/products/coconut-panna.jpg"},
-    {"name": "Cheesecake de Frutos Rojos", "price": 15.00, "tag": "Saludable", "image": "/images/products/berry-cheesecake.jpg"},
-    {"name": "Cheesecake de Manzana", "price": 14.00, "tag": "Fibra", "image": "/images/products/apple-cheesecake.jpg"},
-    {"name": "Cheesecake de Uchuva", "price": 15.50, "tag": "Vitamina C", "image": "/images/products/uchuva-cheesecake.jpg"},
-    {"name": "Cheesecake de Maracuyá y Mango", "price": 16.00, "tag": "Digestivo", "image": "/images/products/mango-cheesecake.jpg"},
+    {"name": "Parfait de Chia y Bayas", "price": 12000, "tag": "Sin Azucar", "image": "/images/products/chia-parfait.jpg"},
+    {"name": "Tarta de Chocolate Negro", "price": 16000, "tag": "Vegano", "image": "/images/products/dark-chocolate.jpg"},
+    {"name": "Cheesecake de Matcha", "price": 14000, "tag": "Keto", "image": "/images/products/matcha-cheesecake.jpg"},
+    {"name": "Mousse de Avellana", "price": 13000, "tag": "Sin Gluten", "image": "/images/products/hazelnut-mousse.jpg"},
+    {"name": "Brownie de Almendras", "price": 10000, "tag": "Vegano", "image": "/images/products/almond-brownie.jpg"},
+    {"name": "Panna Cotta de Coco", "price": 11000, "tag": "Sin Lactosa", "image": "/images/products/coconut-panna.jpg"},
+    {"name": "Cheesecake de Frutos Rojos", "price": 15000, "tag": "Saludable", "image": "/images/products/cheescake-frutos-rojos-2.png"},
+    {"name": "Cheesecake de Manzana", "price": 14000, "tag": "Fibra", "image": "/images/products/cheescake-manzana.png"},
+    {"name": "Cheesecake de Uchuva", "price": 15500, "tag": "Vitamina C", "image": "/images/products/Cheesecake_de_Uchuva.png"},
+    {"name": "Cheesecake de Maracuyá y Mango", "price": 16000, "tag": "Digestivo", "image": "/images/products/Cheesecake_de_maracuya_y_mango.png"},
 ]
 
 async def seed_db():
@@ -69,7 +69,7 @@ async def seed_db():
             text_to_embed = (
                 f"TIENDA: {STORE_CONTEXT}\n"
                 f"PRODUCTO: {p_data['name']}\n"
-                f"PRECIO: ${p_data['price']} USD\n"
+                f"PRECIO: ${p_data['price']} COP\n"
                 f"TAG/CATEGORIA: {p_data['tag']}\n"
                 f"SABORES Y BENEFICIOS: {desc}"
             )

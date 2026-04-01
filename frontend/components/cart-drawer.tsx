@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/lib/cart-context'
 import { Separator } from '@/components/ui/separator'
+import { formatPrice } from '@/lib/utils'
 
 export function CartDrawer() {
   const { isOpen, closeCart, items, updateQuantity, removeFromCart, subtotal } = useCart()
@@ -83,7 +84,7 @@ export function CartDrawer() {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-medium text-foreground">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {formatPrice(item.price * item.quantity)}
                           </span>
                           <button
                             onClick={() => removeFromCart(item.id)}
@@ -105,7 +106,7 @@ export function CartDrawer() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Subtotal</span>
                 <span className="text-lg font-medium text-foreground">
-                  ${subtotal.toFixed(2)}
+                  {formatPrice(subtotal)}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
