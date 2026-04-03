@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from typing import List
 
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
@@ -100,14 +101,13 @@ async def _get_search_query(state: GraphState, llm: ChatOpenAI) -> str:
 
     prompt = (
         "Eres un REESCRITOR de consultas de búsqueda para la pastelería Zenda.\n"
-        "Tu única tarea es extraer el tema o producto de interés del usuario para buscarlo en una base de datos vectorial.\n\n"
+        "Tu única tarea es extraer el TEMA o PRODUCTO de interés del usuario.\n\n"
         "REGLAS:\n"
         "1. NO intentes responder al usuario.\n"
-        "2. NO inventes productos que no estén en el historial.\n"
-        "3. Si el usuario pregunta por 'postres' en general, devuelve simplemente 'postres'.\n"
-        "4. Si el usuario se refiere a una opción numerada de la lista anterior (ej: 'la 2'), devuelve el NOMBRE del producto que ocupaba esa posición.\n\n"
-        "REGLA DE ORO: NO hables, NO añadas palabras como 'mousse' o 'tarta' si el usuario no las dijo.\n"
-        "Responde ÚNICAMENTE con los términos de búsqueda (máximo 3 palabras)."
+        "2. Si el usuario dice un número solo (ej: 'Dame 3'), busca el nombre del producto que se mencionó ANTES en el historial y devuélvelo.\n"
+        "3. NO devuelvas 'ID 3' o 'Producto 3' a menos que el usuario sea explícito.\n"
+        "4. Si el usuario pregunta por 'postres' en general, devuelve simplemente 'postres'.\n\n"
+        "Responde ÚNICAMENTE con el nombre del producto (máximo 4 palabras)."
     )
 
     response = await llm.ainvoke([SystemMessage(content=prompt)] + history)
@@ -117,15 +117,12 @@ async def _get_search_query(state: GraphState, llm: ChatOpenAI) -> str:
 
 
 def _clean_json_response(text: str) -> str:
-    """Elimina bloques de código markdown y espacios extra de una respuesta JSON."""
+    """Elimina bloques de código markdown y asegura un JSON limpio."""
     text = text.strip()
-    if text.startswith("```"):
-        # Extraer contenido entre ```json y ``` o simplemente ```
-        import re
-        match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
-        if match:
-            return match.group(1)
-    return text
+    # Eliminar bloques de código markdown si existen
+    text = re.sub(r"```(?:json)?\s*", "", text)
+    text = re.sub(r"\s*```", "", text)
+    return text.strip()
 
 
 async def _rerank_products(query: str, products: List, llm: ChatOpenAI) -> List:
@@ -144,9 +141,9 @@ async def _rerank_products(query: str, products: List, llm: ChatOpenAI) -> List:
         f"El usuario busca: '{query}'\n\n"
         f"Candidatos encontrados en la DB:\n{catalog_str}\n\n"
         "REGLAS CRÍTICAS:\n"
-        "1. Solo valida productos que coincidan EXACTAMENTE con el sabor o tipo solicitado.\n"
-        "2. Si pide 'maracuyá', NO aceptes 'uchuva' aunque sean frutas similares.\n"
-        "3. Si el usuario pide un producto en singular ('el de...'), intenta devolver solo el ID más relevante.\n"
+        "1. Solo valida productos que coincidan con el sabor o tipo solicitado.\n"
+        "2. Si el usuario pide algo genérico como 'Mousse' y solo hay uno en el catálogo, ACRÉPTALO. Si hay varios, devuelve NONE.\n"
+        "3. Mantén la regla estricta de las frutas: Si pide 'maracuyá', NO aceptes 'uchuva' aunque sean frutas similares.\n"
         "4. Responde ÚNICAMENTE con los IDs de los productos separados por comas. Si no hay coincidencia exacta, responde 'NONE'.\n"
         "Respuesta (solo IDs o NONE):"
     )
@@ -304,15 +301,32 @@ def build_graph(db: AsyncSession) -> StateGraph:
         logger.info("[Purchase] ▶ RAG retrieval for: '%s'", search_query)
         context, raw_products = await retrieve_products(search_query, db)
         products = await _rerank_products(search_query, raw_products, purchase_llm)
+
+        # 3b. ¿ES UNA NEGATIVA? (Si el usuario dice "No", "No gracias")
+        is_negative = False
+        if len(user_query.split()) <= 6:
+            prompt_neg = f"¿El usuario está RECHAZANDO, diciendo que NO o pidiendo que no se haga nada? Responde SOLO 'YES' o 'NO'. Mensaje: '{user_query}'"
+            resp_neg = await purchase_llm.ainvoke([HumanMessage(content=prompt_neg)])
+            is_negative = "YES" in resp_neg.content.upper()
+
+        # Si es negativa pura ("No", sin alternativas) y no generó una búsqueda exitosa:
+        if is_negative and not products:
+            reply = "¡Entendido! No lo agregaré. ¿Hay algún otro postre que te gustaría explorar o alguna otra duda que tengas? 😊"
+            return {"reply": reply, "actions": [], "context": ""}
         
         # 4. EXTRACCIÓN DE ÓRDENES
         orders_to_add = []
         if products:
             extraction_prompt = (
-                "Dado este mensaje y los productos validados, extrae las cantidades.\n"
-                "Responde ÚNICAMENTE con un JSON: {\"orders\": [{\"name\": \"...\", \"quantity\": 1}]}\n"
-                f"Mensaje original: {user_query}\n" # <--- ¡Aquí usamos el original!
-                f"Productos Validados:\n{context}"
+                "Eres un extractor de órdenes preciso para Zenda.\n"
+                "Tu tarea es extraer la cantidad que el usuario desea del producto validado.\n\n"
+                "REGLAS CRÍTICAS:\n"
+                f"1. Si el mensaje del usuario ('{user_query}') contiene un número (ej: 'Dame 3'), esa ES la cantidad.\n"
+                "2. NUNCA, bajo ninguna circunstancia, uses los números entre corchetes [ID] como cantidades.\n"
+                "3. Si el usuario no especifica cantidad (ej: dice 'Sí' o 'Agrégalo'), la cantidad por defecto es 1.\n"
+                "4. Responde ÚNICAMENTE con el formato JSON: {\"orders\": [{\"name\": \"...\", \"quantity\": 1}]}\n\n"
+                f"MENSAJE DEL USUARIO: {user_query}\n"
+                f"PRODUCTO VALIDADO:\n{context}"
             )
             extraction_resp = await purchase_llm.ainvoke([HumanMessage(content=extraction_prompt)])
             try:
@@ -325,7 +339,7 @@ def build_graph(db: AsyncSession) -> StateGraph:
         # 5. LÓGICA DE DECISIÓN (EL "CEREBRO" DE SEGURIDAD)
         # Analizamos si debemos añadir al carrito YA o PREGUNTAR primero.
         # Definimos 'explicit_command' si el usuario usó verbos de acción.
-        action_verbs = ["añade", "pon", "agrega", "compra", "suma", "quiero 2", "quiero 3"]
+        action_verbs = ["añade", "pon", "agrega", "compra", "suma", "quiero 2", "quiero 3", "dame", "regalame", "ponme", "mandame"]
         is_explicit = any(v in user_query.lower() for v in action_verbs)
         
         # Verificamos si el producto fue mencionado por el ASISTENTE en el turno anterior.

@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Nūr Patisserie | Indulgence Without the Guilt',
-  description: 'Discover our collection of artisanal healthy desserts. Sugar-free, vegan, and keto-friendly options crafted with premium ingredients.',
-  generator: 'v0.app',
+  title: 'Zenda | Pastelería Saludable',
+  description: 'Descubre nuestra colección de postres y tortas saludables. Opciones sin azúcar y amigables con tu bienestar, preparadas con ingredientes premium.',
+  generator: 'Next.js',
   icons: {
     icon: [
       {
@@ -37,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
         <Analytics />
