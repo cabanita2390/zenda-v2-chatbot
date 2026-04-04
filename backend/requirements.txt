@@ -10,3 +10,4 @@ pgvector
 langgraph
 langfuse
 gunicorn
+email-validator
