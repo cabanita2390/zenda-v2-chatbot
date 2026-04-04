@@ -27,6 +27,7 @@ async def lifespan(app: FastAPI):
         logger.info("🚀 Lifespan startup: Initializing database...")
         
         # Solo corremos migraciones si RUN_MIGRATIONS es True
+        # Solo corremos migraciones si RUN_MIGRATIONS es True
         if os.getenv("RUN_MIGRATIONS", "false").lower() == "true":
             logger.info("🏗️ Running database migrations (create_all)...")
             async with engine.begin() as conn:

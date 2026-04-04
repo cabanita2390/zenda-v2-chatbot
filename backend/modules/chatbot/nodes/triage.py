@@ -46,7 +46,9 @@ def create_triage_node(llm: ChatOpenAI):
             "HISTORIAL RECIENTE (Para contexto):\n"
             f"{context_str}\n"
             "REGLA DE ORO: Si el Bot hizo una pregunta de compra anteriormente, las respuestas cortas del Usuario "
-            "como 'Sí', 'No' o números deben clasificarse como 'purchase'.\n\n"
+            "como 'Sí', 'No' o números deben clasificarse as 'purchase'.\n"
+            "EXCEPCIÓN: Si el último mensaje de la conversación fue una confirmación de éxito (ej. '¡Perfecto! He agregado...'), "
+            "un 'No' o 'Nada más' significa que el usuario terminó, así que clasifícalo como 'greeting'.\n\n"
             "Responde SOLO con JSON: {\"intent\": \"<categoria>\"}\n\n"
             f"Mensaje actual del Usuario: {user_query}"
         )

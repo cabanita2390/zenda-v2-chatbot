@@ -56,10 +56,14 @@ def create_purchase_node(llm: ChatOpenAI, db: AsyncSession):
             resp_neg = await llm.ainvoke([HumanMessage(content=prompt_neg)])
             is_negative = "YES" in resp_neg.content.upper()
 
-        # Si es negativa pura ("No", sin alternativas) y no generó una búsqueda exitosa:
-        if is_negative and not products:
-            reply = "¡Entendido! No lo agregaré. ¿Hay algún otro postre que te gustaría explorar o alguna otra duda que tengas? 😊"
-            return {"reply": reply, "actions": [], "context": ""}
+        # Si es negativa pura ("No", "No gracias") y no hay una clara intención de buscar otro postre:
+        if is_negative:
+            # Si el mensaje es muy corto (negativa pura), detenemos la venta aquí.
+            if len(user_query.split()) <= 3:
+                reply = "¡Entendido! No lo agregaré. ¿Deseas explorar algún otro postre de nuestro menú o tienes alguna otra duda? 😊"
+                return {"reply": reply, "actions": [], "context": ""}
+            
+            # Si el usuario dice "No" pero menciona algo más, seguimos adelante solo si el buscador encuentra algo nuevo
 
         # 4. EXTRACCIÓN DE ÓRDENES
         orders_to_add = []
