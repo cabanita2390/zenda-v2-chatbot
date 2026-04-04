@@ -31,9 +31,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+import os
+
+# Configuración dinámica de CORS para producción
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

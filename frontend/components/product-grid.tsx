@@ -8,8 +8,8 @@ export function ProductGrid() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // fetch('http://localhost:8000/api/products/')
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/`)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+    fetch(`${apiUrl}/api/products/`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data)

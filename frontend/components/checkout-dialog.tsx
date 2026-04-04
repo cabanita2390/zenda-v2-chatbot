@@ -54,7 +54,8 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
 
     try {
       // Ajusta la URL a la variable de entorno real en producción
-      const res = await fetch('http://localhost:8000/orders/', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const res = await fetch(`${apiUrl}/orders/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
