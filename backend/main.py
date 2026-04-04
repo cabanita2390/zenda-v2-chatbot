@@ -21,6 +21,7 @@ import os
 logger = logging.getLogger("uvicorn.error")
 
 @asynccontextmanager
+async def lifespan(app: FastAPI):
     try:
         # Start-up: Configuración inicial
         logger.info("🚀 Lifespan startup: Initializing database...")
