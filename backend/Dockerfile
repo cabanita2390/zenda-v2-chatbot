@@ -32,9 +32,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 8. Puerto de Escucha
-# Render asignará automáticamente un puerto a través de la variable de entorno PORT.
-# No necesitamos EXPOSE pero es buena práctica saber que nuestra app corre habitualmente.
+# Render inyectará automáticamente la variable $PORT. Usamos 8000 como fallback estándar.
 EXPOSE 8000
 
-# Arrancamos con uvicorn directo. Render inyecta la variable $PORT automáticamente.
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}
+# Arrancamos con uvicorn. Usamos la variable $PORT de Render o 8000 por defecto.
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
