@@ -36,9 +36,6 @@ COPY . .
 # No necesitamos EXPOSE pero es buena práctica saber que nuestra app corre habitualmente.
 EXPOSE 8000
 
-# 9. Comando de Arranque (Producción)
-# Usamos 'gunicorn' con trabajadores 'uvicorn'. 
-# -w 4: Cuatro trabajadores para manejar múltiples peticiones al mismo tiempo.
-# -k uvicorn.workers.UvicornWorker: Clase de trabajador para aplicaciones asíncronas (FastAPI).
-# --bind 0.0.0.0:$PORT: Escucha en todas las interfaces en el puerto que Render nos asigne.
-CMD gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000}
+# -w 2: Dos trabajadores (mejor para instancias pequeñas en Render).
+# --timeout 120: Esperar hasta 2 minutos antes de matar un trabajador que no responde (útil en arranques lentos).
+CMD gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} --timeout 120

@@ -15,13 +15,27 @@ from modules.chatbot.chatbot_controller import router as chatbot_router
 from modules.orders.orders_controller import router as orders_router
 from modules.orders import orders_model # Import for Base.metadata inference
 
+import logging
+
+logger = logging.getLogger("uvicorn.error")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Start-up: Crea las tablas si no existen (ideal para desarrollo local veloz)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # Start-up: Configuración inicial
+    logger.info("🚀 Lifespan startup: Initializing database...")
+    
+    # Solo corremos migraciones si RUN_MIGRATIONS es True (evita bloqueos entre múltiples workers)
+    if os.getenv("RUN_MIGRATIONS", "false").lower() == "true":
+        logger.info("🏗️ Running database migrations (create_all)...")
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("✅ Database migrations completed.")
+    else:
+        logger.info("⏭️ Skipping auto-migrations (RUN_MIGRATIONS != true).")
+        
     yield
     # Shutdown: Cierra la conexión
+    logger.info("🛑 Lifespan shutdown: Disposing engine...")
     await engine.dispose()
 
 app = FastAPI(
