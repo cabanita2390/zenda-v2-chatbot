@@ -112,7 +112,7 @@ export function ChatbotUI() {
 
       {/* Overlay de fondo (Cierre al hacer clic fuera) */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
           onClick={() => setIsOpen(false)}
         />
@@ -120,8 +120,8 @@ export function ChatbotUI() {
 
       {/* Panel Lateral (Drawer) */}
       {isOpen && (
-        <div className="fixed inset-y-0 right-0 w-full max-w-[450px] bg-background/95 backdrop-blur-2xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] border-l border-border/50 animate-in slide-in-from-right duration-500 ease-out flex flex-col">
-          
+        <div className="fixed top-16 bottom-0 right-0 w-full max-w-[450px] bg-background/95 backdrop-blur-2xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] border-l border-border/50 animate-in slide-in-from-right duration-500 ease-out flex flex-col">
+
           {/* Cabecera Premium */}
           <div className="flex flex-row items-center justify-between p-6 border-b bg-card/50 backdrop-blur-sm">
             <div className="flex items-center gap-3">
@@ -136,10 +136,10 @@ export function ChatbotUI() {
                 </p>
               </div>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setIsOpen(false)} 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsOpen(false)}
               className="h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full"
             >
               <X className="h-5 w-5" />
@@ -150,11 +150,10 @@ export function ChatbotUI() {
           <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-6 custom-scrollbar">
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[88%] px-5 py-3 text-[15px] leading-relaxed shadow-sm transition-all ${
-                  msg.role === 'user'
+                <div className={`max-w-[88%] px-5 py-3 text-[15px] leading-relaxed shadow-sm transition-all ${msg.role === 'user'
                     ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-none'
                     : 'bg-card border border-border/50 rounded-2xl rounded-bl-none text-foreground'
-                }`}>
+                  }`}>
                   <ReactMarkdown
                     components={{
                       p: ({ ...props }) => <p className="mb-3 last:mb-0" {...props} />,

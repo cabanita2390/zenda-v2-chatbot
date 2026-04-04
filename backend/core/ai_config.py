@@ -13,13 +13,13 @@ TRIAGE_TEMPERATURE: float = float(os.getenv("TRIAGE_TEMPERATURE", "0.0"))  # Det
 
 # ── Generation nodes ──────────────────────────────────────────────────────────
 RECIPE_MODEL: str = os.getenv("RECIPE_MODEL", "gpt-4o-mini")
-RECIPE_TEMPERATURE: float = float(os.getenv("RECIPE_TEMPERATURE", "0.3"))
+RECIPE_TEMPERATURE: float = float(os.getenv("RECIPE_TEMPERATURE", "0.15"))
 
 PURCHASE_MODEL: str = os.getenv("PURCHASE_MODEL", "gpt-4o-mini")
-PURCHASE_TEMPERATURE: float = float(os.getenv("PURCHASE_TEMPERATURE", "0.2"))
+PURCHASE_TEMPERATURE: float = float(os.getenv("PURCHASE_TEMPERATURE", "0.05"))
 
 INFO_MODEL: str = os.getenv("INFO_MODEL", "gpt-4o-mini")
-INFO_TEMPERATURE: float = float(os.getenv("INFO_TEMPERATURE", "0.3"))
+INFO_TEMPERATURE: float = float(os.getenv("INFO_TEMPERATURE", "0.15"))
 
 # ── Embeddings ────────────────────────────────────────────────────────────────
 EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")

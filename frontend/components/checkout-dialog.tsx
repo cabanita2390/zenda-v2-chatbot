@@ -22,10 +22,10 @@ interface CheckoutDialogProps {
 
 export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
   const { items, subtotal, clearCart } = useCart()
-  const [loading, setLoading] = useState(false)
-  const [successOrder, setSuccessOrder] = useState<any>(null)
-  const [copied, setCopied] = useState(false)
-  const [errorMsg, setErrorMsg] = useState('')
+  const [ loading, setLoading ] = useState(false)
+  const [ successOrder, setSuccessOrder ] = useState<any>(null)
+  const [ copied, setCopied ] = useState(false)
+  const [ errorMsg, setErrorMsg ] = useState('')
 
   const copyNequi = () => {
     navigator.clipboard.writeText('3001234567') // Nequi simulado
@@ -108,7 +108,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
                 <Label htmlFor="address">Dirección de envío</Label>
                 <Input id="address" name="address" required placeholder="Calle 123 #45-67" />
               </div>
-              
+
               {errorMsg && <p className="text-sm text-red-500">{errorMsg}</p>}
 
               <div className="mt-4 flex items-center justify-between border-t pt-4 font-medium">
@@ -128,19 +128,19 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
             </div>
             <DialogTitle className="text-2xl">¡Pedido Generado!</DialogTitle>
             <DialogDescription className="text-base">
-              Tu número de pedido es:<br/>
+              Tu número de pedido es:<br />
               <strong className="text-foreground tracking-wider select-all">{successOrder.id}</strong>
             </DialogDescription>
-            
+
             <div className="w-full rounded-lg bg-accent/50 p-4 mt-4 text-left">
               <h4 className="font-medium mb-2">Instrucciones de Pago</h4>
               <p className="text-sm text-muted-foreground mb-3">
                 Para confirmar tu pedido, por favor transfiere <strong>{formatPrice(successOrder.total_amount)}</strong> a nuestra cuenta Nequi:
               </p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 rounded bg-background px-3 py-2 font-mono text-lg text-center font-bold">
-                  300 123 4567
-                </code>
+                <span className="flex-1 rounded bg-background px-3 py-2 text-lg text-center font-bold selection:text-primary-foreground">
+                  319 581 1958
+                </span>
                 <Button size="icon" variant="outline" onClick={copyNequi} title="Copiar número">
                   {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
                 </Button>
