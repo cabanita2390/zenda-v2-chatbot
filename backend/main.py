@@ -16,6 +16,7 @@ from modules.orders.orders_controller import router as orders_router
 from modules.orders import orders_model # Import for Base.metadata inference
 
 import logging
+import os
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -44,8 +45,6 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
-
-import os
 
 # Configuración dinámica de CORS para producción
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
