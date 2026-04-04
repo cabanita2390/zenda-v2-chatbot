@@ -21,18 +21,21 @@ import os
 logger = logging.getLogger("uvicorn.error")
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Start-up: Configuración inicial
-    logger.info("🚀 Lifespan startup: Initializing database...")
-    
-    # Solo corremos migraciones si RUN_MIGRATIONS es True (evita bloqueos entre múltiples workers)
-    if os.getenv("RUN_MIGRATIONS", "false").lower() == "true":
-        logger.info("🏗️ Running database migrations (create_all)...")
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logger.info("✅ Database migrations completed.")
-    else:
-        logger.info("⏭️ Skipping auto-migrations (RUN_MIGRATIONS != true).")
+    try:
+        # Start-up: Configuración inicial
+        logger.info("🚀 Lifespan startup: Initializing database...")
+        
+        # Solo corremos migraciones si RUN_MIGRATIONS es True
+        if os.getenv("RUN_MIGRATIONS", "false").lower() == "true":
+            logger.info("🏗️ Running database migrations (create_all)...")
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info("✅ Database migrations completed.")
+        else:
+            logger.info("⏭️ Skipping auto-migrations (RUN_MIGRATIONS != true).")
+    except Exception as e:
+        logger.error("❌ CRITICAL ERROR during startup: %s", str(e), exc_info=True)
+        # No relanzamos el error para permitir que la app responda al health check y poder debuggear
         
     yield
     # Shutdown: Cierra la conexión
@@ -56,6 +59,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+def read_root():
+    return {
+        "message": "Zenda API is running 🍃",
+        "status": "online",
+        "docs": "/docs"
+    }
 
 @app.get("/api/health")
 def health_check():
