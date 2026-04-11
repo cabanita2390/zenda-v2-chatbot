@@ -26,17 +26,28 @@ def create_track_order_node(llm: ChatOpenAI, db: AsyncSession):
         user_query = state["messages"][-1].content
         logger.info("[TrackOrder] ▶ Processing tracking for: '%s'", user_query)
 
-        # 1. Extraer ID usando el LLM
-        extract_prompt = (
-            "Extrae el ID o código de pedido (usualmente un identificador largo de letras y números) de este mensaje.\n"
-            "Si no encuentras ningún ID, responde exactamente con la palabra 'NONE'.\n"
-            f"Mensaje: '{user_query}'"
-        )
-        extraction_resp = await llm.ainvoke([HumanMessage(content=extract_prompt)])
-        order_id = extraction_resp.content.strip()
+        # 1. Extraer ID usando Regex (UUID)
+        import re
+        uuid_pattern = r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+        match = re.search(uuid_pattern, user_query)
+        order_id = match.group(0) if match else None
 
-        if order_id == "NONE" or not order_id:
-            reply = "Para consultar el estado de tu pedido, por favor bríndame el identificador (ID) único de tu compra."
+        if not order_id:
+            consecutive_failures = 0
+            for i in range(len(state["messages"]) - 2, -1, -2):
+                msg = state["messages"][i]
+                if msg.role == "assistant" and ("Para consultar el estado de tu pedido" in msg.content or "El identificador ingresado no tiene el formato correcto" in msg.content):
+                    consecutive_failures += 1
+                else:
+                    break
+
+            if consecutive_failures == 0:
+                reply = "Para consultar el estado de tu pedido, por favor bríndame el identificador (ID) único de tu compra (ejemplo: ca4f27df-7b88-4e36-9311-3ec728b9acc3)."
+            elif consecutive_failures == 1:
+                reply = "El identificador ingresado no tiene el formato correcto. Recuerda que debe ser un código UUID idéntico a este ejemplo: ca4f27df-7b88-4e36-9311-3ec728b9acc3. Por favor, inténtalo de nuevo."
+            else:
+                reply = "Sigues ingresando un formato incorrecto. Para no darte largas, voy a cancelar la solicitud de rastreo por ahora. Si tienes el código a mano más tarde, no dudes en volver a escribirme. 😊"
+
             return {"reply": reply, "actions": [], "context": ""}
 
         # 2. Consultar BD
