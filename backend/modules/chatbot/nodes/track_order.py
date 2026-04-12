@@ -36,17 +36,24 @@ def create_track_order_node(llm: ChatOpenAI, db: AsyncSession):
             consecutive_failures = 0
             for i in range(len(state["messages"]) - 2, -1, -2):
                 msg = state["messages"][i]
-                if msg.role == "assistant" and ("Para consultar el estado de tu pedido" in msg.content or "El identificador ingresado no tiene el formato correcto" in msg.content):
+                if msg.role == "assistant" and (
+                    "Para consultar el estado de tu pedido" in msg.content
+                    or "¡Claro! 🔍 Para consultar" in msg.content
+                    or "¡Casi! Ese parece ser un número" in msg.content
+                    or "Hmm, sigo sin reconocer ese formato" in msg.content
+                ):
                     consecutive_failures += 1
                 else:
                     break
 
             if consecutive_failures == 0:
-                reply = "Para consultar el estado de tu pedido, por favor bríndame el identificador (ID) único de tu compra (ejemplo: ca4f27df-7b88-4e36-9311-3ec728b9acc3)."
+                reply = "¡Claro! 🔍 Para consultar el estado de tu pedido, bríndame el identificador (ID) único de tu compra. Luce así: ca4f27df-7b88-4e36-9311-3ec728b9acc3 😊"
             elif consecutive_failures == 1:
-                reply = "El identificador ingresado no tiene el formato correcto. Recuerda que debe ser un código UUID idéntico a este ejemplo: ca4f27df-7b88-4e36-9311-3ec728b9acc3. Por favor, inténtalo de nuevo."
+                reply = "¡Casi! Ese parece ser un número de teléfono o similar, pero el código de pedido tiene un formato diferente. 😊 Debe verse así: ca4f27df-7b88-4e36-9311-3ec728b9acc3. Por favor, inténtalo de nuevo."
+            elif consecutive_failures == 2:
+                reply = "Hmm, sigo sin reconocer ese formato. 🤔 Recuerda que el código de pedido lo encuentras en el correo de confirmación que te enviamos. Tiene este aspecto: ca4f27df-7b88-4e36-9311-3ec728b9acc3. ¡Es tu último intento!"
             else:
-                reply = "Sigues ingresando un formato incorrecto. Para no darte largas, voy a cancelar la solicitud de rastreo por ahora. Si tienes el código a mano más tarde, no dudes en volver a escribirme. 😊"
+                reply = "No pude reconocer el identificador. Para no darte más largas, voy a cancelar esta solicitud por ahora. 😊 Cuando tengas el código a mano, ¡con gusto te ayudo!"
 
             return {"reply": reply, "actions": [], "context": ""}
 

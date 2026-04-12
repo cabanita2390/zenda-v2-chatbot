@@ -70,14 +70,15 @@ def create_purchase_node(llm: ChatOpenAI, db: AsyncSession):
         if products:
             extraction_prompt = (
                 "Eres un extractor de órdenes preciso para Zenda.\n"
-                "Tu tarea es extraer la cantidad que el usuario desea del producto validado.\n\n"
+                "Tu tarea es extraer TODOS los productos y cantidades que el usuario desea agregar en este mensaje.\n\n"
                 "REGLAS CRÍTICAS:\n"
-                f"1. Si el mensaje del usuario ('{user_query}') contiene un número (ej: 'Dame 3'), esa ES la cantidad.\n"
-                "2. NUNCA, bajo ninguna circunstancia, uses los números entre corchetes [ID] como cantidades.\n"
-                "3. Si el usuario no especifica cantidad (ej: dice 'Sí' o 'Agrégalo'), la cantidad por defecto es 1.\n"
-                "4. Responde ÚNICAMENTE con el formato JSON: {\"orders\": [{\"name\": \"...\", \"quantity\": 1}]}\n\n"
+                f"1. Si el mensaje del usuario ('{user_query}') contiene un número (ej: 'Dame 3'), esa ES la cantidad de ese producto.\n"
+                "2. NUNCA uses los números entre corchetes [ID] como cantidades.\n"
+                "3. Si el usuario no especifica cantidad para un producto, la cantidad por defecto es 1.\n"
+                "4. Si el usuario menciona VARIOS productos distintos, extráelos TODOS en la lista.\n"
+                "5. Responde ÚNICAMENTE con JSON: {\"orders\": [{\"name\": \"...\", \"quantity\": 1}, ...]}\n\n"
                 f"MENSAJE DEL USUARIO: {user_query}\n"
-                f"PRODUCTO VALIDADO:\n{context}"
+                f"CATÁLOGO DISPONIBLE:\n{context}"
             )
             extraction_resp = await llm.ainvoke([HumanMessage(content=extraction_prompt)])
             try:
@@ -88,7 +89,7 @@ def create_purchase_node(llm: ChatOpenAI, db: AsyncSession):
                 orders_to_add = []
 
         # 5. LÓGICA DE DECISIÓN (EL "CEREBRO" DE SEGURIDAD)
-        action_verbs = ["añade", "pon", "agrega", "compra", "suma", "quiero 2", "quiero 3", "dame", "regalame", "ponme", "mandame"]
+        action_verbs = ["añade", "pon", "agrega", "compra", "suma", "quiero", "dame", "regalame", "ponme", "mandame"]
         is_explicit = any(v in user_query.lower() for v in action_verbs)
 
         # Verificamos si el producto fue mencionado por el ASISTENTE en el turno anterior.
@@ -107,16 +108,23 @@ def create_purchase_node(llm: ChatOpenAI, db: AsyncSession):
         should_ask_permission = False
         should_disambiguate = False
 
+        # Resolvemos IDs de forma anticipada para poder tomar decisiones
+        actions_resolved = await resolve_product_ids(orders_to_add, products)
+
         if products:
-            if len(products) > 1:
+            if len(orders_to_add) > 1 and len(actions_resolved) > 0:
+                # El usuario pidió MÚLTIPLES ítems distintos explícitamente → agregar todos
+                logger.info("[Purchase] Multi-item request: %d items extracted, %d resolved.", len(orders_to_add), len(actions_resolved))
+                actions = actions_resolved
+            elif len(products) > 1:
                 if last_was_disambiguation:
                     # El usuario YA vio las opciones y está respondiendo → agregar
-                    actions = await resolve_product_ids(orders_to_add, products)
+                    actions = actions_resolved
                 else:
                     # Primera vez que ve múltiples productos → mostrar opciones
                     should_disambiguate = True
             elif is_confirmation or is_explicit:
-                actions = await resolve_product_ids(orders_to_add, products)
+                actions = actions_resolved
             else:
                 should_ask_permission = True
 
