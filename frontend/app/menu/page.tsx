@@ -1,43 +1,39 @@
 import { Metadata } from 'next'
-import { CartProvider } from '@/lib/cart-context'
-import { Header } from '@/components/header'
-import { CartDrawer } from '@/components/cart-drawer'
-import { Footer } from '@/components/footer'
 import { MenuContent } from '@/components/menu-content'
-import { ChatbotUI } from '@/components/chatbot-ui'
+import { PageHero } from '@/components/page-hero'
 
 export const metadata: Metadata = {
-  title: 'Menu | Nur Patisserie',
-  description: 'Explora nuestra coleccion completa de postres saludables. Sin azucar, veganos, keto y sin gluten.',
+  title: 'Menú | Zenda',
+  description: 'Explora nuestra colección completa de postres artesanales. Sin azúcar, veganos, keto, sin gluten y más. Pedidos con 24h de anticipación. Entrega en Sogamoso.',
 }
+
+const deliveryPills = (
+  <div className="flex flex-wrap gap-5">
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs">📦</span>
+      Pedidos con <strong className="text-foreground ml-1">24h de anticipación</strong>
+    </div>
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs">🛵</span>
+      <strong className="text-foreground">Entrega</strong>&nbsp;en Sogamoso o retiro en punto
+    </div>
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs">💳</span>
+      Pago contra entrega o&nbsp;<strong className="text-foreground">transferencia</strong>
+    </div>
+  </div>
+)
 
 export default function MenuPage() {
   return (
-    <CartProvider>
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main>
-          {/* Hero Section */}
-          <section className="border-b border-border bg-card">
-            <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-28">
-              <div className="max-w-2xl">
-                <h1 className="text-4xl font-semibold tracking-tight text-foreground lg:text-5xl text-balance">
-                  Nuestro Menu
-                </h1>
-                <p className="mt-6 text-lg leading-relaxed text-muted-foreground text-pretty">
-                  Cada postre esta elaborado con ingredientes naturales y sin comprometer el sabor. 
-                  Descubre opciones para todos los estilos de vida.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <MenuContent />
-        </main>
-        <CartDrawer />
-        <ChatbotUI />
-        <Footer />
-      </div>
-    </CartProvider>
+    <>
+      <PageHero
+        title="Nuestro Menú"
+        description="Cada postre de Zenda es elaborado artesanalmente con ingredientes naturales de alta calidad, sin conservantes artificiales ni colorantes sintéticos. Tenemos opciones para todos los estilos de vida: vegano, keto, sin azúcar, sin gluten y más."
+      >
+        {deliveryPills}
+      </PageHero>
+      <MenuContent />
+    </>
   )
 }

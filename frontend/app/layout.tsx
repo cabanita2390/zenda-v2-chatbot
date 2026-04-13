@@ -1,6 +1,11 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { CartProvider } from '@/lib/cart-context'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+import { CartDrawer } from '@/components/cart-drawer'
+import { ChatbotUI } from '@/components/chatbot-ui'
 import './globals.css'
 
 const inter = Inter({ 
@@ -39,7 +44,15 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+        <CartProvider>
+          <div className="min-h-screen bg-background">
+            <Header />
+            <main>{children}</main>
+            <Footer />
+            <CartDrawer />
+            <ChatbotUI />
+          </div>
+        </CartProvider>
         <Analytics />
       </body>
     </html>

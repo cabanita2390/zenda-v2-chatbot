@@ -77,7 +77,7 @@ export function ContactForm() {
             id="telefono"
             name="telefono"
             type="tel"
-            placeholder="+34 600 000 000"
+            placeholder="+57 300 1234567"
             className="border-border/50 bg-card focus:border-primary"
           />
         </Field>

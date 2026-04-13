@@ -22,8 +22,8 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-xl font-medium tracking-tight text-foreground">
-                Nur
+              <span className="text-xl font-semibold tracking-tight text-foreground">
+                ZENDA
               </span>
               <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
                 Patisserie
@@ -107,14 +107,21 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="mt-16 flex flex-col items-center justify-between gap-6 border-t border-border pt-8 md:flex-row">
-          <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Nur Patisserie. Todos los derechos reservados.
-          </p>
+          <div className="flex flex-col items-center gap-1 md:items-start">
+            <p className="text-sm text-muted-foreground">
+              &copy; {new Date().getFullYear()} Zenda. Todos los derechos reservados.
+            </p>
+            <p className="text-xs text-muted-foreground/60">
+              Hecho en Sogamoso con ❤️
+            </p>
+          </div>
           <div className="flex items-center gap-4">
             <Link
-              href="#"
+              href="https://www.instagram.com/zenda.postressaludables/"
               className="text-muted-foreground transition-colors hover:text-foreground"
               aria-label="Instagram"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <Instagram className="h-5 w-5" />
             </Link>
