@@ -1,0 +1,690 @@
+/* Página de inicio nueva · paleta A "Cuajada". Todo queda dentro de .zi */
+
+.zi {
+  --ground: #f3f4ee;
+  --surface: #fbfbf8;
+  --ink: #2b1d2a;
+  --muted: #5c4f5a;
+  --uchuva: #e9a43b;
+  --uchuva-hi: #dd962c;
+  --hoja: #5d7b4e;
+  --frambuesa: #c2456a;
+  --line: rgba(43, 29, 42, 0.12);
+  --gutter: clamp(16px, 4vw, 56px);
+  --max: 1240px;
+  --radius: 22px;
+
+  position: relative;
+  min-height: 100vh;
+  color: var(--ink);
+  background: var(--ground);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+.zi *,
+.zi *::before,
+.zi *::after {
+  box-sizing: border-box;
+}
+.zi h1,
+.zi h2,
+.zi h3,
+.zi .zi-wordmark {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.zi a {
+  color: inherit;
+}
+.zi :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.zi section[id] {
+  scroll-margin-top: 72px;
+}
+
+.zi-skip {
+  position: absolute;
+  left: -9999px;
+}
+.zi-skip:focus {
+  left: 16px;
+  top: 12px;
+  z-index: 60;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-radius: 8px;
+}
+
+/* Encabezado */
+.zi-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 68px;
+  padding: 0 var(--gutter);
+  background: rgba(243, 244, 238, 0.86);
+  backdrop-filter: saturate(1.4) blur(12px);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.zi-wordmark {
+  font-size: 1.875rem;
+  line-height: 1;
+  text-decoration: none;
+  margin: 0;
+}
+.zi-nav {
+  display: flex;
+  gap: clamp(16px, 2.6vw, 36px);
+}
+.zi-nav a {
+  text-decoration: none;
+  font-size: 0.975rem;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.zi-nav a:hover {
+  color: var(--ink);
+}
+.zi-cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.975rem;
+}
+.zi-cart-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Botones */
+.zi-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.zi-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 26px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: transform 0.15s, background-color 0.2s, color 0.2s;
+}
+.zi-btn:active {
+  transform: scale(0.98);
+}
+.zi-btn-primary {
+  background: var(--uchuva);
+  color: var(--ink);
+}
+.zi-btn-primary:hover {
+  background: var(--uchuva-hi);
+}
+.zi-btn-ghost {
+  border: 1.5px solid var(--ink);
+}
+.zi-btn-ghost:hover {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+/* Portada */
+.zi-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+  max-width: var(--max);
+  margin: 0 auto;
+  min-height: calc(100vh - 68px);
+  min-height: calc(100dvh - 68px);
+  padding: 48px var(--gutter) 72px;
+}
+.zi-eyebrow {
+  margin: 0 0 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hoja);
+}
+.zi-hero h1 {
+  margin: 0;
+  font-size: clamp(3rem, 6.4vw, 5.75rem);
+  line-height: 0.98;
+  max-width: 10ch;
+}
+.zi-lead {
+  margin: 24px 0 34px;
+  font-size: 1.25rem;
+  color: var(--muted);
+  max-width: 34ch;
+}
+.zi-collage {
+  position: relative;
+  height: min(76vh, 620px);
+}
+.zi-photo {
+  position: absolute;
+  overflow: hidden;
+  border-radius: var(--radius);
+  aspect-ratio: 1;
+  box-shadow: 0 24px 60px -24px rgba(43, 29, 42, 0.35);
+  will-change: transform;
+}
+.zi-photo img {
+  object-fit: cover;
+}
+.zi-c1 {
+  right: 0;
+  top: 0;
+  width: 64%;
+}
+.zi-c2 {
+  left: 0;
+  top: 36%;
+  width: 40%;
+  z-index: 2;
+}
+.zi-c3 {
+  right: 10%;
+  top: 58%;
+  width: 42%;
+  z-index: 1;
+}
+
+/* Líneas */
+.zi-lines {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+.zi-line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 16px;
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.zi-line + .zi-line {
+  padding-left: 32px;
+  border-left: 1px solid var(--line);
+}
+.zi-line h2 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+.zi-line p {
+  grid-column: 1;
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+.zi-tag {
+  grid-row: 1;
+  grid-column: 2;
+  align-self: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.zi-tag-on {
+  border-color: transparent;
+  background: rgba(93, 123, 78, 0.14);
+  color: var(--hoja);
+}
+
+/* Secciones */
+.zi-section {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: clamp(80px, 12vh, 140px) var(--gutter);
+}
+.zi-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 32px;
+  margin-bottom: 28px;
+}
+.zi-section h2,
+.zi-story-intro h2,
+.zi-orders h2 {
+  margin: 0;
+  font-size: clamp(2.25rem, 4.4vw, 3.75rem);
+  line-height: 1.02;
+}
+.zi-section-head p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 40ch;
+}
+
+/* Menú */
+.zi-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.zi-filters button {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.zi-filters button:hover {
+  border-color: var(--ink);
+}
+.zi-filters button[aria-pressed='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--surface);
+}
+.zi-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px 24px;
+}
+.zi-card {
+  display: flex;
+  flex-direction: column;
+}
+.zi-card-media {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #eadcc8;
+}
+.zi-card-media img {
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.zi-card:hover .zi-card-media img {
+  transform: scale(1.04);
+}
+.zi-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-top: 16px;
+}
+.zi-card-cat {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hoja);
+}
+.zi-card h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.12;
+}
+.zi-card-note {
+  margin: 6px 0 14px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.zi-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+}
+.zi-price {
+  font-weight: 600;
+}
+.zi-add {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.zi-add:hover {
+  background: var(--ink);
+  color: var(--surface);
+}
+.zi-add.is-added {
+  background: var(--hoja);
+  border-color: var(--hoja);
+  color: var(--surface);
+}
+
+/* Qué lleva: video fijo detrás, tarjetas que pasan por encima */
+.zi-story {
+  position: relative;
+}
+.zi-story-stage {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+.zi-story-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* Velo suave a la izquierda para que el texto se lea sobre el video */
+.zi-story-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--ground) 0%, rgba(243, 244, 238, 0.7) 26%, rgba(243, 244, 238, 0) 46%);
+  pointer-events: none;
+}
+.zi-story-content {
+  position: relative;
+  z-index: 1;
+  margin-top: -100vh;
+  margin-top: -100dvh;
+  max-width: var(--max);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 30vh var(--gutter) 34vh;
+}
+.zi-story-intro {
+  max-width: 440px;
+  margin-bottom: 46vh;
+}
+.zi-story-intro p {
+  margin: 16px 0 0;
+  font-size: 1.2rem;
+  color: var(--muted);
+}
+.zi-story-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.zi-story-card {
+  max-width: 400px;
+  margin-bottom: 62vh;
+  padding: 28px 30px 30px;
+  border-radius: var(--radius);
+  background: rgba(251, 251, 248, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px -24px rgba(43, 29, 42, 0.28);
+}
+.zi-story-card:last-child {
+  margin-bottom: 0;
+}
+.zi-story-num {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--frambuesa);
+}
+.zi-story-card h3 {
+  margin: 0 0 6px;
+  font-size: 1.75rem;
+  line-height: 1.1;
+}
+.zi-story-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* Encargos: banda oscura para cambiar el ritmo */
+.zi-orders {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 96px);
+  align-items: start;
+  padding: clamp(80px, 12vh, 140px) max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
+  background: var(--ink);
+  color: var(--ground);
+}
+.zi-orders-intro p {
+  margin: 18px 0 0;
+  color: rgba(243, 244, 238, 0.75);
+  max-width: 42ch;
+}
+.zi-orders .zi-orders-prices {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 24px 0 32px;
+  color: var(--ground);
+  font-weight: 600;
+}
+.zi-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.zi-steps li {
+  display: flex;
+  gap: 20px;
+  padding: 26px 0;
+  border-top: 1px solid rgba(243, 244, 238, 0.16);
+}
+.zi-steps li:last-child {
+  border-bottom: 1px solid rgba(243, 244, 238, 0.16);
+}
+.zi-step-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--uchuva);
+  color: var(--ink);
+  font-weight: 600;
+}
+.zi-steps h3 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+  line-height: 1.15;
+}
+.zi-steps p {
+  margin: 0;
+  color: rgba(243, 244, 238, 0.72);
+}
+
+/* Nosotros */
+.zi-about-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 96px);
+  margin-top: 28px;
+}
+.zi-about-lead {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  line-height: 1.25;
+}
+.zi-facts {
+  margin: 0;
+}
+.zi-facts div {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.zi-facts dt {
+  font-weight: 600;
+}
+.zi-facts dd {
+  margin: 2px 0 0;
+  color: var(--muted);
+}
+
+/* Pie */
+.zi-footer {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 32px;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 56px var(--gutter) 40px;
+  border-top: 1px solid var(--line);
+}
+.zi-footer p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.zi-footer h2 {
+  margin: 0 0 8px;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.zi-legal {
+  grid-column: 1 / -1;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+/* Tableta */
+@media (max-width: 1100px) {
+  .zi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Celular */
+@media (max-width: 760px) {
+  .zi-header {
+    height: 60px;
+  }
+  .zi-nav {
+    display: none;
+  }
+  .zi section[id] {
+    scroll-margin-top: 60px;
+  }
+  .zi-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding: 32px var(--gutter) 56px;
+    gap: 40px;
+  }
+  .zi-hero h1 {
+    font-size: clamp(2.75rem, 12vw, 3.5rem);
+  }
+  .zi-lead {
+    font-size: 1.125rem;
+  }
+  .zi-collage {
+    height: 92vw;
+  }
+  .zi-lines {
+    grid-template-columns: 1fr;
+  }
+  .zi-line + .zi-line {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 0;
+  }
+  .zi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 14px;
+  }
+  .zi-card h3 {
+    font-size: 1.15rem;
+  }
+  .zi-card-note {
+    font-size: 0.875rem;
+  }
+  .zi-card-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .zi-story-stage::after {
+    background: linear-gradient(180deg, rgba(243, 244, 238, 0) 60%, var(--ground) 100%);
+  }
+  .zi-story-content {
+    padding: 64vh var(--gutter) 24vh;
+  }
+  .zi-story-intro,
+  .zi-story-card {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .zi-story-intro {
+    padding: 22px 24px;
+    border-radius: var(--radius);
+    background: rgba(251, 251, 248, 0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    margin-bottom: 70vh;
+  }
+  .zi-story-card {
+    margin-bottom: 70vh;
+  }
+  .zi-orders,
+  .zi-about-grid {
+    grid-template-columns: 1fr;
+  }
+  .zi-footer {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zi-card-media img,
+  .zi-btn,
+  .zi-add {
+    transition: none;
+  }
+}

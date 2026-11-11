@@ -1,0 +1,195 @@
+/* Comparación de fuentes · paleta Cuajada. Todo queda dentro de .fx */
+.fx {
+  --ground: #f3f4ee;
+  --surface: #fbfbf8;
+  --ink: #2b1d2a;
+  --muted: #5c4f5a;
+  --uchuva: #e9a43b;
+  --line: rgba(43, 29, 42, 0.14);
+  background: var(--ground);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 48px clamp(16px, 4vw, 56px) 96px;
+  font-family: system-ui, sans-serif;
+}
+.fx *,
+.fx *::before,
+.fx *::after {
+  box-sizing: border-box;
+}
+.fx-intro {
+  max-width: 720px;
+  margin: 0 auto 48px;
+}
+.fx-intro h1 {
+  font-size: 2rem;
+  margin: 0 0 8px;
+}
+.fx-intro p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.fx-pair {
+  max-width: 1120px;
+  margin: 0 auto 56px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: clamp(20px, 4vw, 48px);
+}
+.fx-tag {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  font-family: system-ui, sans-serif;
+}
+.fx-tag div {
+  display: grid;
+}
+.fx-tag strong {
+  font-size: 1.05rem;
+}
+.fx-tag span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.fx-num {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--surface) !important;
+  font-weight: 700;
+  font-size: 1rem !important;
+}
+
+.fx-hero {
+  background: var(--ground);
+  border-radius: 18px;
+  padding: clamp(20px, 4vw, 44px);
+}
+.fx-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: clamp(32px, 6vw, 64px);
+}
+.fx-word {
+  font-size: 1.9rem;
+  line-height: 1;
+}
+.fx-bar nav {
+  display: flex;
+  gap: 22px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.fx-head {
+  font-size: clamp(2.6rem, 6.4vw, 5.4rem);
+  line-height: 1;
+  margin: 0 0 20px;
+  max-width: 13ch;
+}
+.fx-lead {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 44ch;
+  margin: 0 0 28px;
+}
+.fx-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.fx-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: var(--uchuva);
+  font-weight: 600;
+}
+.fx-ghost {
+  background: transparent;
+  border: 1.5px solid var(--ink);
+}
+
+.fx-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+.fx-card {
+  background: var(--ground);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fx-card h3 {
+  font-size: 1.75rem;
+  line-height: 1.08;
+  margin: 0;
+}
+.fx-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.fx-kicker {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.fx-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.fx-price span {
+  font-size: 2.2rem;
+}
+.fx-price small {
+  color: var(--muted);
+}
+.fx-big {
+  background: var(--ink);
+  color: var(--surface);
+  justify-content: center;
+}
+.fx-big span {
+  font-size: 3rem;
+  line-height: 1;
+}
+.fx-big p {
+  color: rgba(251, 251, 248, 0.75);
+}
+.fx-feel {
+  margin: 20px 0 0;
+  font-family: system-ui, sans-serif;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 760px) {
+  .fx-cards {
+    grid-template-columns: 1fr;
+  }
+  .fx-bar nav span:not(:last-child) {
+    display: none;
+  }
+}

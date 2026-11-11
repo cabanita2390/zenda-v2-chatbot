@@ -1,0 +1,452 @@
+/* Prototipo de scroll · paleta A "Cuajada". Todo queda dentro de .sx */
+
+.sx {
+  --sx-ground: #f3f4ee;
+  --ink: #2b1d2a;
+  --muted: #5c4f5a;
+  --uchuva: #e9a43b;
+  --uchuva-hi: #dd962c;
+  --hoja: #5d7b4e;
+  --frambuesa: #c2456a;
+  --surface: #fbfbf8;
+  --line: rgba(43, 29, 42, 0.14);
+  --gutter: clamp(16px, 4vw, 56px);
+
+  position: relative;
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  background: var(--sx-ground);
+}
+
+.sx *,
+.sx *::before,
+.sx *::after {
+  box-sizing: border-box;
+}
+
+.sx h1,
+.sx h2,
+.sx .sx-wordmark,
+.sx .sx-layer strong,
+.sx .sx-flavor,
+.sx .sx-cta-title {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.sx :focus-visible {
+  outline: 3px solid var(--frambuesa);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.sx-skip {
+  position: fixed;
+  left: -9999px;
+}
+.sx-skip:focus {
+  left: 16px;
+  top: 16px;
+  z-index: 50;
+  background: var(--ink);
+  color: var(--surface);
+  padding: 8px 14px;
+}
+
+/* Ventana pegajosa: contiene escenario, chrome y copy. Es sticky (no fixed)
+   para que la rueda y el gesto táctil desplacen el contenedor del laboratorio. */
+.sx-viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Escenario */
+.sx-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--sx-ground);
+}
+
+/* Chrome */
+.sx-chrome {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px var(--gutter);
+  pointer-events: none;
+}
+.sx-chrome a {
+  pointer-events: auto;
+  color: var(--ink);
+  text-decoration: none;
+}
+.sx-wordmark {
+  font-size: 1.875rem;
+  line-height: 1;
+}
+.sx-cart {
+  font-size: 0.975rem;
+}
+
+/* Mapa del recorrido: la navegación es la lista de paradas, clicable */
+.sx-map {
+  position: absolute;
+  z-index: 41;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.sx-map ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 18px;
+}
+.sx-map button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  padding: 2px 6px 2px 0;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.sx-map-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  transition: transform 0.25s, background-color 0.25s;
+}
+.sx-map button[aria-current] {
+  color: var(--ink);
+  font-weight: 600;
+}
+.sx-map button[aria-current] .sx-map-dot {
+  background: var(--uchuva);
+  border-color: var(--uchuva);
+  transform: scale(1.4);
+}
+.sx-map button:hover {
+  color: var(--ink);
+}
+
+/* Capa de copy fija */
+.sx-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+.sx-block {
+  position: absolute;
+  visibility: hidden;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.sx-block h1 {
+  font-size: clamp(3rem, 6.6vw, 6rem);
+  line-height: 0.98;
+  margin: 0;
+  max-width: 10.5ch;
+}
+.sx-block h2 {
+  font-size: clamp(2rem, 3.6vw, 3.25rem);
+  line-height: 1.04;
+  margin: 0 0 14px;
+}
+.sx-block p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 36ch;
+}
+
+.sx-hero {
+  left: var(--gutter);
+  top: 50%;
+  margin-top: -12rem;
+  max-width: 44vw;
+}
+.sx-hero p {
+  font-size: 1.25rem;
+  margin: 24px 0 32px;
+}
+.sx-left {
+  left: var(--gutter);
+  top: 26vh;
+  max-width: min(420px, 36vw);
+}
+.sx-top {
+  left: 50%;
+  top: 14vh;
+  width: min(560px, 90vw);
+  margin-left: max(-280px, -45vw);
+  text-align: center;
+}
+.sx-top p {
+  margin: 0 auto;
+}
+.sx-final {
+  left: var(--gutter);
+  top: 24vh;
+  max-width: min(440px, 40vw);
+}
+.sx-final h2 {
+  font-size: clamp(2.25rem, 4.2vw, 3.75rem);
+}
+.sx-final p {
+  margin-bottom: 18px;
+}
+
+.sx-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.sx-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 26px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 0;
+  transition: transform 0.15s, background-color 0.2s, color 0.2s;
+}
+.sx-btn:active {
+  transform: scale(0.98);
+}
+.sx-btn-primary {
+  background: var(--uchuva);
+  color: var(--ink);
+}
+.sx-btn-primary:hover {
+  background: var(--uchuva-hi);
+}
+.sx-btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+}
+.sx-btn-ghost:hover {
+  background: var(--ink);
+  color: var(--surface);
+}
+.sx-link {
+  font: inherit;
+  font-weight: 600;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.sx-steps {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  display: grid;
+  gap: 14px;
+  color: var(--muted);
+}
+.sx-steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+}
+.sx-steps li::before {
+  content: counter(step);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--ink);
+}
+.sx-steps strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Indicación de scroll en la portada */
+.sx-hint {
+  left: 50%;
+  bottom: 28px;
+  margin-left: -90px;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink) !important;
+}
+.sx-hint-arrow {
+  width: 22px;
+  height: 34px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  position: relative;
+}
+.sx-hint-arrow::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 7px;
+  width: 4px;
+  height: 7px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--ink);
+  animation: sx-wheel 1.6s ease-in-out infinite;
+}
+@keyframes sx-wheel {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(11px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sx-hint-arrow::after { animation: none; }
+}
+
+/* Etiquetas dentro del mundo */
+.sx-layer {
+  display: grid;
+  grid-template-columns: 56px auto;
+  column-gap: 12px;
+  align-items: center;
+  width: max-content;
+  max-width: 300px;
+  opacity: 0;
+  color: var(--ink);
+}
+.sx-layer-line {
+  grid-row: span 2;
+  height: 1.5px;
+  background: var(--ink);
+  opacity: 0.5;
+}
+.sx-layer strong {
+  font-size: 1.375rem;
+  line-height: 1.1;
+}
+.sx-layer span:last-child {
+  font-size: 0.925rem;
+  color: var(--muted);
+}
+
+.sx-flavor {
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.sx-cta {
+  width: 260px;
+  text-align: center;
+  color: var(--ink);
+}
+.sx-cta-title {
+  font-size: 1.625rem;
+  line-height: 1.1;
+  margin: 0;
+}
+.sx-cta-price {
+  margin: 4px 0 14px;
+  color: var(--muted);
+}
+
+/* El único elemento en el flujo */
+.sx-spacer {
+  position: relative;
+  z-index: 0;
+  margin-top: -100vh;
+  margin-top: -100dvh;
+  pointer-events: none;
+}
+
+/* Celular: copy arriba, el mundo abajo */
+@media (max-width: 760px) {
+  .sx-wordmark {
+    font-size: 1.6rem;
+  }
+  .sx-hero,
+  .sx-left,
+  .sx-final {
+    left: var(--gutter);
+    right: var(--gutter);
+    top: 84px;
+    margin-top: 0;
+    max-width: none;
+  }
+  .sx-block h1 {
+    font-size: clamp(2.5rem, 12vw, 3.25rem);
+  }
+  .sx-block h2 {
+    font-size: clamp(1.75rem, 8vw, 2.25rem);
+  }
+  .sx-hero p {
+    font-size: 1.0625rem;
+    margin: 16px 0 20px;
+  }
+  .sx-top {
+    top: 84px;
+  }
+  .sx-map {
+    top: auto;
+    bottom: 12px;
+  }
+  .sx-hint {
+    bottom: 64px;
+  }
+  .sx-map ol {
+    grid-auto-flow: column;
+    justify-content: center;
+    gap: 6px;
+  }
+  .sx-map-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .sx-map button {
+    padding: 8px;
+    min-height: 32px;
+  }
+  .sx-layer {
+    grid-template-columns: 22px auto;
+    max-width: 170px;
+  }
+  .sx-layer strong {
+    font-size: 1.05rem;
+  }
+  .sx-layer span:last-child {
+    display: none;
+  }
+}

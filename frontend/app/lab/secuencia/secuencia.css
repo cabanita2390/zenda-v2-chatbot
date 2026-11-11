@@ -1,0 +1,153 @@
+/* Ajustes propios de la página de secuencia (el resto viene de scroll.css) */
+
+/* Encabezado y mapa fijos durante toda la página (sticky: no corta el scroll) */
+.sq-fixed {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 100vh;
+  height: 100dvh;
+  margin-bottom: -100vh;
+  margin-bottom: -100dvh;
+  pointer-events: none;
+}
+.sq-fixed .sx-map {
+  pointer-events: auto;
+}
+
+.sq-scene {
+  position: relative;
+}
+
+.sq-narrow {
+  max-width: min(360px, 30vw);
+}
+
+/* Etiquetas de capa (computador): línea + texto a la derecha de la capa */
+.sq-layers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sq-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  visibility: hidden;
+  opacity: 0;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+.sq-label-text {
+  display: grid;
+  text-align: left;
+  color: var(--ink);
+}
+.sq-label-text strong {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  font-size: 1.375rem;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.sq-label-text span {
+  font-size: 0.925rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.sq-label-line {
+  flex: none;
+  width: 48px;
+  height: 1.5px;
+  background: var(--ink);
+  opacity: 0.55;
+}
+
+/* Etiqueta de capa (celular): pastilla junto a la capa */
+.sq-chip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(251, 251, 248, 0.94);
+  border-radius: 999px;
+  padding: 6px 14px;
+  box-shadow: 0 2px 12px rgba(43, 29, 42, 0.12);
+  white-space: nowrap;
+}
+.sq-chip strong {
+  font-size: 1rem;
+}
+.sq-chip .sq-label-text span {
+  display: none;
+}
+
+.sq-loading {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 30;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Cierre: contenido normal, sin animación */
+.sq-outro {
+  position: relative;
+  z-index: 2;
+  min-height: 70vh;
+  min-height: 70dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px var(--gutter) 96px;
+  background: var(--sx-ground);
+}
+.sq-outro h2 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 1;
+  margin: 0 0 18px;
+}
+.sq-outro p {
+  margin: 0 0 32px;
+  color: var(--muted);
+  font-size: 1.25rem;
+  max-width: 38ch;
+}
+.sq-outro .sx-btn {
+  text-decoration: none;
+}
+.sq-foot {
+  position: relative;
+  z-index: 2;
+  padding: 28px var(--gutter) 40px;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+  color: var(--muted);
+  background: var(--sx-ground);
+}
+
+@media (max-width: 760px) {
+  .sq-narrow {
+    max-width: none;
+  }
+  .sq-loading {
+    bottom: 56px;
+  }
+  .sq-outro {
+    padding: 96px var(--gutter) 120px;
+  }
+  .sq-outro p {
+    font-size: 1.125rem;
+  }
+  .sq-foot {
+    padding-bottom: 72px;
+  }
+}
