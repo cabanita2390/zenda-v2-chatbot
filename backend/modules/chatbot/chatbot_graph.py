@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import ai_config
 from .chatbot_state import GraphState
+from .utils import OFF_TOPIC_REPLY
 
 # ── Agent node factories ─────────────────────────────────────────────────────
 from .nodes.triage import create_triage_node
@@ -56,7 +57,12 @@ def build_graph(db: AsyncSession) -> StateGraph:
     purchase_node = create_purchase_node(purchase_llm, db)
     info_node = create_info_node(info_llm, db)
     track_order_node = create_track_order_node(info_llm, db)
-    greeting_node = create_greeting_node(info_llm)
+    greeting_node = create_greeting_node(info_llm, db)
+
+    async def off_topic_node(state: GraphState) -> dict:
+        """Respuesta fija (sin LLM) para temas ajenos a Zenda: no se puede 'convencer'."""
+        logger.info("[OffTopic] Mensaje fuera de alcance bloqueado.")
+        return {"reply": OFF_TOPIC_REPLY, "actions": [], "context": ""}
 
     # ── Router ───────────────────────────────────────────────────────────────
     def route_by_intent(state: GraphState) -> str:
@@ -73,6 +79,7 @@ def build_graph(db: AsyncSession) -> StateGraph:
     graph.add_node("info", info_node)
     graph.add_node("greeting", greeting_node)
     graph.add_node("track_order", track_order_node)
+    graph.add_node("off_topic", off_topic_node)
 
     graph.add_edge(START, "triage")
     graph.add_conditional_edges(
@@ -84,8 +91,10 @@ def build_graph(db: AsyncSession) -> StateGraph:
             "info": "info",
             "greeting": "greeting",
             "track_order": "track_order",
+            "off_topic": "off_topic",
         },
     )
+    graph.add_edge("off_topic", END)
     graph.add_edge("recipe", END)
     graph.add_edge("purchase", END)
     graph.add_edge("info", END)

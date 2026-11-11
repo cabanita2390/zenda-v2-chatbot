@@ -11,6 +11,9 @@ from __future__ import annotations
 
 import logging
 import os
+import re
+import unicodedata
+from difflib import SequenceMatcher
 from typing import List
 
 from langchain_openai import OpenAIEmbeddings
@@ -81,9 +84,12 @@ async def resolve_product_ids(
     actions: List[CartAction] = []
     
     for order in orders:
-        req_name = order.get("name", "").lower().strip()
-        req_qty = order.get("quantity", 1)
-        if not req_name:
+        req_name = str(order.get("name", "")).lower().strip()
+        try:
+            req_qty = int(order.get("quantity", 1))
+        except (TypeError, ValueError):
+            req_qty = 1
+        if not req_name or not 1 <= req_qty <= MAX_QTY_PER_ITEM:
             continue
             
         matched_product = None
@@ -105,6 +111,99 @@ async def resolve_product_ids(
 
     logger.info("[Cart] Resolved %d actions with quantities", len(actions))
     return actions
+
+
+# Pregunta fija tras listar opciones: el nodo de compras la busca en el turno
+# anterior para saber que la siguiente respuesta del cliente es su elección.
+DISAMBIGUATION_QUESTION = "¿Cuál te gustaría agregar al carrito?"
+MAX_QTY_PER_ITEM = 20  # Más que esto es un pedido especial, no una compra por chat
+
+_STOPWORDS = {"de", "del", "la", "el", "los", "las", "un", "una", "uno", "unos", "unas", "y", "con"}
+_FUZZY_CUTOFF = 0.8  # Tolera errores de tipeo ("cheescake" → "cheesecake")
+
+
+def _tokens(text: str) -> List[str]:
+    """Normaliza a tokens sin tildes, stopwords ni plural ("Maracuyá" → "maracuya")."""
+    plain = unicodedata.normalize("NFD", text.lower())
+    plain = "".join(c for c in plain if unicodedata.category(c) != "Mn")
+    words = re.findall(r"[a-z]+", plain)
+    return [w.rstrip("s") for w in words if w not in _STOPWORDS]
+
+
+def _token_matches(token: str, name_tokens: List[str]) -> bool:
+    return any(
+        token == nt or SequenceMatcher(None, token, nt).ratio() >= _FUZZY_CUTOFF
+        for nt in name_tokens
+    )
+
+
+def find_matching_products(req_name: str, catalog: List[Product]) -> List[Product]:
+    """Devuelve los productos cuyo nombre contiene TODAS las palabras pedidas."""
+    req_tokens = _tokens(req_name)
+    if not req_tokens:
+        return []
+    return [
+        p for p in catalog
+        if all(_token_matches(t, _tokens(p.name)) for t in req_tokens)
+    ]
+
+
+async def get_all_products(db: AsyncSession) -> List[Product]:
+    result = await db.execute(select(Product).order_by(Product.id))
+    return list(result.scalars().all())
+
+
+def resolve_multi_item_order(
+    orders: List[dict], catalog: List[Product]
+) -> tuple[List[CartAction], List[str]]:
+    """
+    Resuelve cada ítem de un pedido múltiple contra el catálogo COMPLETO.
+    Retorna (acciones, avisos): los ítems que no se pueden identificar sin
+    ambigüedad NO se agregan; generan un aviso para que el usuario aclare.
+    """
+    actions: List[CartAction] = []
+    notices: List[str] = []
+
+    for order in orders:
+        req_name = str(order.get("name", "")).strip()
+        try:
+            quantity = int(order.get("quantity", 1))
+        except (TypeError, ValueError):
+            quantity = 1
+        if quantity < 1:
+            continue  # "cero brownies" o cantidades negativas: no se agrega nada
+        if quantity > MAX_QTY_PER_ITEM:
+            notices.append(
+                f"Para pedir más de {MAX_QTY_PER_ITEM} unidades de \"{req_name}\" escríbenos directamente "
+                "y preparamos tu pedido especial. 😊"
+            )
+            continue
+        order = {**order, "quantity": quantity}
+        matches = find_matching_products(req_name, catalog)
+
+        if len(matches) == 1:
+            product = matches[0]
+            actions.append(CartAction(
+                type="ADD_TO_CART",
+                product_id=product.id,
+                product_name=product.name,
+                price=product.price,
+                image=product.image,
+                quantity=order.get("quantity", 1),
+            ))
+        elif matches:
+            options = "\n".join(
+                f"- **{p.name}** — ${p.price:,.0f}".replace(",", ".") for p in matches
+            )
+            notices.append(
+                f"Para \"{req_name}\" tenemos varias opciones:\n\n{options}\n\n{DISAMBIGUATION_QUESTION} 😊"
+            )
+        else:
+            notices.append(f"No encontré \"{req_name}\" en nuestro catálogo.")
+
+    logger.info("[Cart] Multi-item: %d resolved, %d pending", len(actions), len(notices))
+    return actions, notices
+
 
 async def track_order(order_id: str, db: AsyncSession) -> str:
     """Busca un pedido por su ID (UUID) en la base de datos y retorna su estado formateado."""

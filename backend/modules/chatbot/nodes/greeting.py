@@ -14,15 +14,20 @@ from langchain_openai import ChatOpenAI
 
 from core import ai_config
 from ..chatbot_state import GraphState
-from ..utils import build_lc_history, stream_and_collect
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..chatbot_tools import get_all_products
+from ..utils import build_lc_history, stream_and_collect, format_catalog, SCOPE_RULES
 
 logger = logging.getLogger(__name__)
 
 
-def create_greeting_node(llm: ChatOpenAI):
-    """Factory: retorna el nodo de saludos con el LLM inyectado."""
+def create_greeting_node(llm: ChatOpenAI, db: AsyncSession):
+    """Factory: retorna el nodo de saludos con el LLM y la DB inyectados."""
 
     async def greeting_node(state: GraphState) -> dict:
+        # Con el catálogo a la vista el saludo no inventa postres al recomendar.
+        catalog = format_catalog(await get_all_products(db))
         user_query = state["messages"][-1].content
         logger.info("[Greeting] ▶ Processing greeting: '%s'", user_query)
 
@@ -35,7 +40,10 @@ def create_greeting_node(llm: ChatOpenAI):
             "- Si es un CIERRE o AGRADECIMIENTO (gracias, chao, dale): ¡Sé agradecido! Refuerza la experiencia Zenda. "
             "Ej: '¡Es un verdadero placer! Espero que disfrutes mucho de tu elección. Estaré aquí si decides probar algo más. 🍰✨'\n"
             "- TONO: Artesanal, saludable y genuinamente amable. Evita frases robóticas como '¿en qué más puedo ayudarte?'.\n\n"
-            "Responde siempre en español y mantén la calidez que caracteriza a nuestra pastelería."
+            "- Si la conversación ya empezó, NO vuelvas a dar la bienvenida ni a presentarte.\n"
+            "Responde siempre en español y mantén la calidez que caracteriza a nuestra pastelería.\n\n"
+            f"{SCOPE_RULES}\n\n"
+            f"{catalog}"
         )
 
         messages = [SystemMessage(content=system)] + build_lc_history(state)

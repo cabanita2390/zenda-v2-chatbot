@@ -17,7 +17,7 @@ class GraphState(TypedDict, total=False):
     messages: List[ChatMessage]                        # Full conversation history
 
     # ── Triage output ───────────────────────────────────────────────────────
-    intent: Optional[Literal["recipe", "purchase", "info"]]
+    intent: Optional[Literal["recipe", "purchase", "info", "greeting", "track_order", "off_topic"]]
 
     # ── RAG output ──────────────────────────────────────────────────────────
     context: Optional[str]                             # Formatted product context

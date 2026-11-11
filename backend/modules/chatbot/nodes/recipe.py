@@ -14,8 +14,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core import ai_config
 from ..chatbot_state import GraphState
-from ..chatbot_tools import retrieve_products
-from ..utils import build_lc_history, stream_and_collect, get_search_query
+from ..chatbot_tools import get_all_products
+from ..utils import build_lc_history, stream_and_collect, format_catalog, SCOPE_RULES
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +24,9 @@ def create_recipe_node(llm: ChatOpenAI, db: AsyncSession):
     """Factory: retorna el nodo de recetas con LLM y DB inyectados."""
 
     async def recipe_node(state: GraphState) -> dict:
-        search_query = await get_search_query(state, llm)
-        logger.info("[Recipe] ▶ RAG retrieval started for: '%s'", search_query)
-        context, _ = await retrieve_products(search_query, db)
-        logger.info("[Recipe] ✓ Context retrieved (%d chars)", len(context))
+        # Catálogo completo (es pequeño): evita omitir postres que sí existen.
+        context = format_catalog(await get_all_products(db))
+        logger.info("[Recipe] ✓ Full catalog loaded (%d chars)", len(context))
 
         system = (
             "Eres el asistente de la pastelería saludable Zenda, especializado en recetas. "
@@ -37,6 +36,7 @@ def create_recipe_node(llm: ChatOpenAI, db: AsyncSession):
             "3. Si la receta o postre no está en el catálogo, responde EXACTAMENTE: "
             "'Lo siento, no tengo información sobre eso en nuestra base de datos.'\n"
             "4. Habla en español, de forma cálida y sin tecnicismos.\n\n"
+            f"{SCOPE_RULES}\n\n"
             f"CATÁLOGO DE FUENTES:\n{context}"
         )
 
